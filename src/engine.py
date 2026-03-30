@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from anthropic import Anthropic
-from retriever import QuantumRetriever
+from src.retriever import QuantumRetriever
 
 load_dotenv()
 
