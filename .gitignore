@@ -1,0 +1,15 @@
+# Python artifacts
+__pycache__/
+venv/
+*.py[cod]
+
+# Sensitive Data
+.env
+
+# Large Data & Storage
+data/
+qdrant_storage/
+processed/
+
+# System files
+.DS_Store

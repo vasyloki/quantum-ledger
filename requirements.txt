@@ -1,0 +1,5 @@
+python-dotenv
+qdrant-client
+docling
+sentence-transformers
+anthropic
