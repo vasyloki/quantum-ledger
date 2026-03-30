@@ -45,7 +45,8 @@ if prompt := st.chat_input("Ask about Blackwell yield, Meta's CapEx, etc..."):
             target_company = None if company_filter == "All" else company_filter.lower()
             
             # Get response from your existing engine
-            response = engine.ask(prompt, company=target_company)
+            response, sources = engine.ask(prompt, company=target_company)
             
             st.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
+            st.session_state.last_sources = sources

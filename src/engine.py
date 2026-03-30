@@ -15,14 +15,27 @@ class QuantumEngine:
         print(f"🔍 Searching the Ledger for: {company if company else 'All Companies'}...")
         hits = self.retriever.search(question, company=company, limit=5)
         
-        # 2. CONTEXT ASSEMBLY: Format snippets for Claude
+        # 2. CONTEXT ASSEMBLY: Format snippets for Claude and metadata for UI
         context_text = ""
+        sources_metadata = []
+        
         for i, hit in enumerate(hits):
-            source = hit.payload['metadata']['source']
-            content = hit.payload['page_content']
+            # Extract data from the Qdrant hit
+            source = hit.payload['metadata'].get('source', 'Unknown Source')
+            content = hit.payload.get('page_content', '')
+            score = hit.score # This is the "Quantum" similarity score
+            
+            # Build the text block for Claude
             context_text += f"\n---\n[Document: {source}]\n{content}\n"
+            
+            # Build the structured list for the Sidebar Dashboard
+            sources_metadata.append({
+                "source": source,
+                "score": score,
+                "content": content
+            })
 
-        # 3. SYSTEM PROMPT: Set the "Financial Analyst" persona
+        # 3. SYSTEM PROMPT
         system_msg = (
             "You are a Senior Financial Analyst for 'The Quantum Ledger'. "
             "Use the provided context from 2025-2026 financial reports to answer the query. "
@@ -30,7 +43,7 @@ class QuantumEngine:
             "Always cite your sources (e.g., 'According to the NVIDIA 10-K...')."
         )
 
-        # 4. GENERATION: Claude's Reasoning
+        # 4. GENERATION
         message = self.client.messages.create(
             model="claude-sonnet-4-6",
             max_tokens=1024,
@@ -40,7 +53,7 @@ class QuantumEngine:
             ]
         )
 
-        return message.content[0].text
+        return message.content[0].text, sources_metadata
 
 if __name__ == "__main__":
     engine = QuantumEngine()
