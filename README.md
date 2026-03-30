@@ -45,8 +45,6 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-### 2. Infra and Execution
-
 # Spin up the Qdrant engine
 docker run -p 6333:6333 qdrant/qdrant
 
@@ -54,3 +52,4 @@ docker run -p 6333:6333 qdrant/qdrant
 python3 src/database.py  # Initialize Collection
 python3 src/ingest.py    # Process & Vectorize Data
 python3 src/engine.py    # Query the Ledger
+```
