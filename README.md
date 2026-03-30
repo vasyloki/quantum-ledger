@@ -2,6 +2,14 @@
 
 **The Quantum Ledger** is an advanced Retrieval-Augmented Generation (RAG) system designed to perform high-fidelity fiscal analysis. It ingests complex financial documents—including 10-K filings, earnings call transcripts, and CFO commentaries—to provide grounded, source-cited insights into the 2025-2026 performance of major tech entities like **NVIDIA, Meta, and Alphabet**.
 
+### 🌌 Why "Quantum"?
+
+Unlike traditional financial ledgers that are **linear and deterministic** (row-by-row, keyword-based), **The Quantum Ledger** treats financial intelligence as a **high-dimensional probability space**.
+
+* **Superposition (Hybrid Search):** The engine simultaneously evaluates data as "waves" (semantic context/intent) and "particles" (exact fiscal constants and hard numbers) using Qdrant’s hybrid search architecture.
+* **Entanglement (Vector Embeddings):** By mapping every document chunk into a 384-dimensional vector space, the system identifies "entangled" relationships between disparate reports—linking NVIDIA's R&D trajectory to Alphabet’s infrastructure spending even when they don't share common keywords.
+* **Dimensionality:** It moves beyond flat text into a mathematical manifold where financial concepts are clustered by their conceptual "proximity," allowing for a non-linear, global understanding of the 2026 fiscal landscape.
+
 ---
 
 ## 🏗️ System Architecture
