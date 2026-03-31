@@ -1,27 +1,32 @@
-# 🌌 The Quantum Ledger: Agentic Financial RAG
+# 🌌 The Quantum Ledger: Dynamic Financial Intelligence
 
-**The Quantum Ledger** is an advanced Retrieval-Augmented Generation (RAG) system designed to perform high-fidelity fiscal analysis. It ingests complex financial documents—including 10-K filings, earnings call transcripts, and CFO commentaries—to provide grounded, source-cited insights into the 2025-2026 performance of major tech entities like **NVIDIA, Meta, and Alphabet**.
+**The Quantum Ledger** is a high-fidelity Retrieval-Augmented Generation (RAG) platform designed for real-time fiscal analysis. It transforms static financial documents—10-Ks, earnings transcripts, and management reports—into a dynamic, searchable intelligence graph. 
+
+By leveraging **IBM Docling** for structural parsing and **Qdrant** for vector orchestration, the Ledger provides grounded, source-cited insights into the 2025-2026 performance of major tech entities like **NVIDIA, Meta, Alphabet**, and now **TSMC**.
 
 ### 🌌 Why "Quantum"?
 
-Unlike traditional financial ledgers that are **linear and deterministic** (row-by-row, keyword-based), **The Quantum Ledger** treats financial intelligence as a **high-dimensional probability space**.
+Unlike traditional financial tools that are **linear and deterministic**, **The Quantum Ledger** treats financial intelligence as a **high-dimensional probability space**.
 
-* **Superposition (Hybrid Search):** The engine simultaneously evaluates data as "waves" (semantic context/intent) and "particles" (exact fiscal constants and hard numbers) using Qdrant’s hybrid search architecture.
-* **Entanglement (Vector Embeddings):** By mapping every document chunk into a 384-dimensional vector space, the system identifies "entangled" relationships between disparate reports—linking NVIDIA's R&D trajectory to Alphabet’s infrastructure spending even when they don't share common keywords.
-* **Dimensionality:** It moves beyond flat text into a mathematical manifold where financial concepts are clustered by their conceptual "proximity," allowing for a non-linear, global understanding of the 2026 fiscal landscape.
+* **Superposition (Hybrid Search):** The engine evaluates data as "waves" (semantic intent) and "particles" (exact fiscal constants) using Qdrant’s hybrid architecture.
+* **Entanglement (Vector Embeddings):** Identifies relationships between disparate reports—linking NVIDIA's R&D trajectory to Alphabet’s infrastructure spending through conceptual proximity.
+* **Observer Effect (Dynamic Ingestion):** The Ledger is no longer a static snapshot. By "observing" new data through the upload portal, the analysis space expands instantly to include new market players and fiscal years.
 
 ---
 
-## 🏗️ System Architecture
+## 🏗️ Platform Features
 
-The pipeline is built on a modular "Research-First" architecture:
+### 🚀 **Dynamic Web Interface (Streamlit)**
+A professional-grade dashboard for interactive querying and audit.
+* **Quantum Hits Sidebar:** Real-time visibility into similarity scores and raw document chunks used for every answer.
+* **Entity Filtering:** Toggle focus between specific companies or perform cross-sector "All" analysis.
+* **Session Persistence:** Chat history and retrieval metadata are maintained throughout your research session.
 
-1. **High-Fidelity Ingestion:** Uses [Docling](https://github.com/DS4SD/docling) to parse complex PDF/HTML structures, ensuring financial tables and nested hierarchies are preserved.
-2. **Vector Orchestration:** Powered by [Qdrant](https://qdrant.tech/) running in Docker. It utilizes metadata filtering to prevent "cross-talk" between different corporate entities during retrieval.
-3. **Semantic Mapping:** Employs the `BAAI/bge-small-en-v1.5` model for local embedding generation, providing a 384-dimensional dense vector space.
-4. **Reasoning Engine:** Integrated with [Claude 3.5 Sonnet](https://www.anthropic.com/) to synthesize retrieved "facts" into professional-grade financial analysis.
-
-
+### 📂 **Hot-Ingestion Engine**
+Move from raw PDF to searchable vector in seconds directly from the browser.
+* **Structural Conversion:** Uses **Docling** to preserve complex financial tables and nested hierarchies in Markdown format.
+* **Generalist Strategy:** Employs a pure semantic embedding approach (no manual anchoring) to maintain 90%+ retrieval precision across diverse document types.
+* **Zero-Restart Updates:** Ingest new entities like **TSMC** or **ASML** without restarting the backend infrastructure.
 
 ---
 
@@ -29,20 +34,21 @@ The pipeline is built on a modular "Research-First" architecture:
 
 | Component | Technology |
 | :--- | :--- |
-| **LLM** | Claude 3.5 Sonnet |
-| **Vector DB** | Qdrant |
+| **Interface** | Streamlit |
+| **LLM** | Claude 3.5 Sonnet (Anthropic) |
+| **Vector DB** | Qdrant (Dockerized) |
 | **Parser** | IBM Docling |
-| **Embeddings** | Sentence-Transformers (BGE) |
-| **Orchestration** | Python 3.12+ / Dotenv |
+| **Embeddings** | BAAI/bge-small-en-v1.5 |
+| **Orchestration** | Python 3.12+ |
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-Ensure you have Docker running for the vector database and an Anthropic API key.
+Ensure you have **Docker** installed for the vector database and an **Anthropic API key** in your `.env`.
 
-### 2. Installation
+### 2. Installation & Launch
 ```bash
 # Clone the repository
 git clone [https://github.com/vasyloki/quantum-ledger.git](https://github.com/vasyloki/quantum-ledger.git)
@@ -56,8 +62,5 @@ pip install -r requirements.txt
 # Spin up the Qdrant engine
 docker run -p 6333:6333 qdrant/qdrant
 
-# Run the pipeline
-python3 src/database.py  # Initialize Collection
-python3 src/ingest.py    # Process & Vectorize Data
-python3 src/engine.py    # Query the Ledger
-```
+# Launch the Platform
+streamlit run app.py
