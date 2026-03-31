@@ -1,0 +1,62 @@
+[
+  {
+    "id": "Q1",
+    "company": "nvidia",
+    "question": "What is the Gross Margin guidance for Q1 FY2027 and how does it reflect Blackwell production efficiency?",
+    "expected_keywords": ["75%", "gross margin", "Blackwell", "inference", "production ramp"]
+  },
+  {
+    "id": "Q2",
+    "company": "meta",
+    "question": "Compare Meta's 2026 capital expenditures guidance to the 2025 actuals. What is the guided range?",
+    "expected_keywords": ["$115 billion", "$135 billion", "72.2 billion", "infrastructure", "AI"]
+  },
+  {
+    "id": "Q3",
+    "company": "nvidia",
+    "question": "List the primary inventory risk factors cited for the transition from Hopper to Blackwell architecture.",
+    "expected_keywords": ["inventory provisions", "low-yielding", "Blackwell", "Hopper", "transition"]
+  },
+  {
+    "id": "Q4",
+    "company": "meta",
+    "question": "What is the 2026 guidance regarding Reality Labs operating losses and workforce adjustments?",
+    "expected_keywords": ["similar to 2025", "operating losses", "layoffs", "restructuring", "technical talent"]
+  },
+  {
+    "id": "Q5",
+    "company": "alphabet",
+    "question": "What is the projected 2026 Capital Expenditure (CapEx) range for Alphabet and what infrastructure is it funding?",
+    "expected_keywords": ["$175 billion", "$185 billion", "AI compute", "TPUs", "data centers"]
+  },
+  {
+    "id": "Q6",
+    "company": "nvidia",
+    "question": "What are the specific revenue figures for the Data Center and Gaming segments for Fiscal Year 2026?",
+    "expected_keywords": ["$193,737", "$16,042", "Data Center", "Gaming", "revenue"]
+  },
+  {
+    "id": "Q7",
+    "company": "meta",
+    "question": "As of the February 2026 financial reports, what is the total remaining authorized amount for share repurchases and what was the activity in early 2026?",
+    "expected_keywords": ["$58.5 billion", "repurchased", "$1.5 billion", "January 26", "remaining"]
+  },
+  {
+    "id": "Q8",
+    "company": "alphabet",
+    "question": "How did Google Cloud's operating income perform in Q4 2025 compared to the previous year?",
+    "expected_keywords": ["operating income", "Google Cloud", "Q4 2025", "growth", "profitability"]
+  },
+  {
+    "id": "Q9",
+    "company": "multi",
+    "question": "What is the general 2026 outlook for Big Tech infrastructure spending based on the guided CapEx for Meta and Alphabet?",
+    "expected_keywords": ["$115", "$135", "$175", "$185", "AI infrastructure", "consensus"]
+  },
+  {
+    "id": "Q10",
+    "company": "meta",
+    "question": "What regulatory frameworks in the EU are cited as a primary compliance focus for 2026 product deployments?",
+    "expected_keywords": ["AI Act", "EU", "compliance", "GDPR", "regulatory", "DMA"]
+  }
+]
