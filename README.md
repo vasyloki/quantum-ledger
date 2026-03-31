@@ -4,6 +4,24 @@
 
 By leveraging **IBM Docling** for structural parsing and **Qdrant** for vector orchestration, the Ledger provides grounded, source-cited insights into the 2025-2026 performance of major tech entities like **NVIDIA, Meta, Alphabet**, and now **TSMC**.
 
+---
+
+Why use **The Quantum Ledger** instead of a general LLM like Gemini or ChatGPT? While general assistants are excellent "reasoning engines," they lack the **deterministic memory architecture** required for professional financial auditing.
+
+### 🛡️ The Hallucination Firewall (Hard Grounding)
+General LLMs often "hallucinate" by blending their pre-training data with your uploaded documents. The Ledger utilizes **Hard Grounding**, physically restricting the LLM's context to only the specific data points retrieved from your private Qdrant vault. If the fact isn't in your Ledger, the system won't "guess" it.
+
+### 🔍 Audit-Ready Verifiability
+In finance, an answer is only as good as its source. Every response in the Ledger is tethered to a **Quantum Hit**. The sidebar dashboard allows you to instantly verify the exact source text, chunk index, and similarity score, turning a 10-minute manual "fact-check" into a 2-second visual audit.
+
+### ♾️ Infinite Context & Scale
+Standard LLMs are limited by "context windows"—they eventually "forget" the beginning of a long report or a large collection of files. The Ledger’s **Vector Memory** scales infinitely; you can index thousands of annual reports across decades, and the system will only surface the relevant 1% of data needed for your specific query.
+
+### 📊 Structural Intelligence (Table Parsing)
+Most LLMs treat financial tables as a "word soup," losing the relationship between headers and values. By leveraging **IBM Docling**, the Ledger preserves the structural hierarchy of financial matrices, ensuring that complex data (like TSMC’s revenue-by-node technology) is interpreted with 100% relational accuracy.
+
+---
+
 ### 🌌 Why "Quantum"?
 
 Unlike traditional financial tools that are **linear and deterministic**, **The Quantum Ledger** treats financial intelligence as a **high-dimensional probability space**.
