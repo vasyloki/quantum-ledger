@@ -6,6 +6,8 @@ By leveraging **IBM Docling** for structural parsing and **Qdrant** for vector o
 
 ---
 
+## Why Quantum Ledger?
+
 Why use **The Quantum Ledger** instead of a general LLM like Gemini or ChatGPT? While general assistants are excellent "reasoning engines," they lack the **deterministic memory architecture** required for professional financial auditing.
 
 ### 🛡️ The Hallucination Firewall (Hard Grounding)
