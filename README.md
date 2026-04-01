@@ -2,35 +2,7 @@
 
 **The Quantum Ledger** is a high-fidelity Retrieval-Augmented Generation (RAG) platform designed for real-time fiscal analysis. It transforms static financial documents—10-Ks, earnings transcripts, and management reports—into a dynamic, searchable intelligence graph. 
 
-By leveraging **IBM Docling** for structural parsing and **Qdrant** for vector orchestration, the Ledger provides grounded, source-cited insights into the 2025-2026 performance of major tech entities like **NVIDIA, Meta, Alphabet**, and now **TSMC**.
-
----
-
-## Why Quantum Ledger?
-
-Why use **The Quantum Ledger** instead of a general LLM like Gemini or ChatGPT? While general assistants are excellent "reasoning engines," they lack the **deterministic memory architecture** required for professional financial auditing.
-
-### 🛡️ The Hallucination Firewall (Hard Grounding)
-General LLMs often "hallucinate" by blending their pre-training data with your uploaded documents. The Ledger utilizes **Hard Grounding**, physically restricting the LLM's context to only the specific data points retrieved from your private Qdrant vault. If the fact isn't in your Ledger, the system won't "guess" it.
-
-### 🔍 Audit-Ready Verifiability
-In finance, an answer is only as good as its source. Every response in the Ledger is tethered to a **Quantum Hit**. The sidebar dashboard allows you to instantly verify the exact source text, chunk index, and similarity score, turning a 10-minute manual "fact-check" into a 2-second visual audit.
-
-### ♾️ Infinite Context & Scale
-Standard LLMs are limited by "context windows"—they eventually "forget" the beginning of a long report or a large collection of files. The Ledger’s **Vector Memory** scales infinitely; you can index thousands of annual reports across decades, and the system will only surface the relevant 1% of data needed for your specific query.
-
-### 📊 Structural Intelligence (Table Parsing)
-Most LLMs treat financial tables as a "word soup," losing the relationship between headers and values. By leveraging **IBM Docling**, the Ledger preserves the structural hierarchy of financial matrices, ensuring that complex data (like TSMC’s revenue-by-node technology) is interpreted with 100% relational accuracy.
-
----
-
-### 🌌 Why "Quantum"?
-
-Unlike traditional financial tools that are **linear and deterministic**, **The Quantum Ledger** treats financial intelligence as a **high-dimensional probability space**.
-
-* **Superposition (Hybrid Search):** The engine evaluates data as "waves" (semantic intent) and "particles" (exact fiscal constants) using Qdrant’s hybrid architecture.
-* **Entanglement (Vector Embeddings):** Identifies relationships between disparate reports—linking NVIDIA's R&D trajectory to Alphabet’s infrastructure spending through conceptual proximity.
-* **Observer Effect (Dynamic Ingestion):** The Ledger is no longer a static snapshot. By "observing" new data through the upload portal, the analysis space expands instantly to include new market players and fiscal years.
+By leveraging **IBM Docling** for structural parsing and **Qdrant** for vector orchestration, the Ledger provides grounded, source-cited insights into the performance of major tech entities like **NVIDIA, Meta, Alphabet, Broadcom (AVGO),** and **TSMC**.
 
 ---
 
@@ -42,11 +14,20 @@ A professional-grade dashboard for interactive querying and audit.
 * **Entity Filtering:** Toggle focus between specific companies or perform cross-sector "All" analysis.
 * **Session Persistence:** Chat history and retrieval metadata are maintained throughout your research session.
 
-### 📂 **Hot-Ingestion Engine**
-Move from raw PDF to searchable vector in seconds directly from the browser.
-* **Structural Conversion:** Uses **Docling** to preserve complex financial tables and nested hierarchies in Markdown format.
-* **Generalist Strategy:** Employs a pure semantic embedding approach (no manual anchoring) to maintain 90%+ retrieval precision across diverse document types.
-* **Zero-Restart Updates:** Ingest new entities like **TSMC** or **ASML** without restarting the backend infrastructure.
+### 🌐 **SEC "Golden Trio" Scout**
+The Ledger features a universal discovery layer for US-listed equities. 
+* **Auto-CIK Discovery:** Enter any ticker (e.g., `AVGO`, `ARM`, `SMCI`). The system automatically queries the SEC master directory to resolve Central Index Keys (CIKs) in real-time.
+* **The Golden Trio Triage:** Automatically identifies and retrieves the three most critical artifacts for fiscal grounding: **10-K (Annual), 10-Q (Quarterly), and 8-K (Current/Earnings).**
+* **Universal Support:** Native support for both Domestic (10-K/8-K) and Foreign Private Issuers (20-F/6-K).
+
+### 📥 **Alpha-First Ingestion Logic**
+A sophisticated ingestion pipeline designed to bypass legal "noise" and target high-value financial data.
+* **Exhibit Prioritization:** The engine automatically hunts for **Exhibits 99.1 and 99.2** (CFO Commentary and Press Releases) before the main filing body, ensuring the AI is grounded in executive strategy.
+* **Ghost Link Immunity:** Intelligent whitelisting ignores SEC navigation "ghost links" (404s), locking onto actual `.htm` and `.pdf` artifacts with 100% reliability.
+* **Safety-Capped Chunking:** Optimized `RecursiveCharacterTextSplitter` logic ensures tables are preserved while staying strictly within the 512-token limits of high-performance embedding models.
+
+### 📊 **Structural Intelligence (Table Parsing)**
+Most LLMs treat financial tables as a "word soup." By leveraging **IBM Docling**, the Ledger preserves the structural hierarchy of financial matrices, ensuring that complex data is interpreted with relational accuracy.
 
 ---
 
@@ -55,6 +36,7 @@ Move from raw PDF to searchable vector in seconds directly from the browser.
 | Component | Technology |
 | :--- | :--- |
 | **Interface** | Streamlit |
+| **Search Service** | SEC EDGAR API w/ BeautifulSoup4 (XML) |
 | **LLM** | Claude 3.5 Sonnet (Anthropic) |
 | **Vector DB** | Qdrant (Dockerized) |
 | **Parser** | IBM Docling |
@@ -84,3 +66,22 @@ docker run -p 6333:6333 qdrant/qdrant
 
 # Launch the Platform
 streamlit run app.py
+
+---
+
+## 🔍 How to use the Scout
+
+1. **Enter a ticker** in the sidebar (e.g., `NVDA` or `AVGO`).
+2. **Click 🔍 Scout Trio** to see the latest 2026 filings.
+3. **Click 📥 Ingest to Ledger** on a specific filing. The system will automatically target the **CFO Commentary (Ex 99.1)** first.
+4. **Grounded!** Once you see the notification, your Ledger is updated with that company's specific fiscal context.
+
+---
+
+## 🛡️ The Hallucination Firewall
+
+General LLMs often "hallucinate" by blending pre-training data with your documents. The Ledger utilizes **Hard Grounding**, physically restricting the LLM's context to only the specific data points retrieved from your private Qdrant vault.
+
+* **Audit-Ready Verifiability:** Every response is tethered to a "Quantum Hit."
+* **Deterministic Retrieval:** If the fact isn't in your Ledger, the system is instructed to state it doesn't know rather than "guessing."
+* **Relational Integrity:** By preserving table structures, we prevent the "word soup" effect that leads to incorrect fiscal constant extraction.
