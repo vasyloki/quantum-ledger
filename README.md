@@ -66,7 +66,7 @@ docker run -p 6333:6333 qdrant/qdrant
 
 # Launch the Platform
 streamlit run app.py
-
+```
 ---
 
 ## 🔍 How to use the Scout
