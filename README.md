@@ -1,5 +1,9 @@
 # 🌌 The Quantum Ledger: Dynamic Financial Intelligence
 
+<p align="center">
+  <img src="./app_image.png" width="800" alt="The Quantum Ledger UI">
+</p>
+
 **The Quantum Ledger** is a high-fidelity Retrieval-Augmented Generation (RAG) platform designed for real-time fiscal analysis. It transforms static financial documents—10-Ks, earnings transcripts, and management reports—into a dynamic, searchable intelligence graph. 
 
 By leveraging **IBM Docling** for structural parsing and **Qdrant** for vector orchestration, the Ledger provides grounded, source-cited insights into the performance of major tech entities like **NVIDIA, Meta, Alphabet, Broadcom (AVGO),** and **TSMC**.
