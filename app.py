@@ -30,7 +30,6 @@ img_base64 = get_base64_image(IMAGE_PATH)
 
 # --- MIDNIGHT GLOW UI INJECTION ---
 if img_base64:
-    # Deep midnight gradient overlaying the artwork
     bg_style = f"""
         background-image: linear-gradient(rgba(5, 5, 5, 0.92), rgba(15, 15, 15, 0.95)), 
         url("data:image/png;base64,{img_base64}");
@@ -42,7 +41,6 @@ st.markdown(f"""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Almendra:wght@400;700&family=Cinzel+Decorative:wght@400;700&family=Spectral:ital,wght@0,200;1,200;1,300&display=swap');
 
-        /* 🌌 MIDNIGHT GLOW OVERRIDE */
         :root {{
             --primary-color: #FFFFFF !important; 
             --secondary-background-color: rgba(30, 30, 30, 0.6) !important;
@@ -61,24 +59,20 @@ st.markdown(f"""
             font-family: 'Spectral', serif;
             font-weight: 300;
             letter-spacing: 1px;
-            /* The Soft Glow Effect */
             text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.4);
         }}
 
-        /* Banish focus ring for white glow */
         input:focus, textarea:focus {{
             border-color: #FFFFFF !important;
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
         }}
 
-        /* 🌑 SIDEBAR - DEEP OBSIDIAN */
         [data-testid="stSidebar"] {{
             background-color: #050505 !important;
             backdrop-filter: blur(25px);
             border-right: 1px solid rgba(255, 255, 255, 0.1);
         }}
 
-        /* 🏺 TITLES - RADIANT WHITE */
         h1 {{
             font-family: 'Cinzel Decorative', cursive;
             font-weight: 700;
@@ -97,7 +91,6 @@ st.markdown(f"""
             text-transform: none !important;
         }}
 
-        /* ⚔️ BUTTONS - GHOSTLY EDGES */
         div.stButton > button {{
             background: rgba(255, 255, 255, 0.05) !important;
             color: #FFFFFF !important;
@@ -117,7 +110,6 @@ st.markdown(f"""
             box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.2);
         }}
 
-        /* 📜 CARDS & CHAT - VOID SPACES */
         .quantum-card {{
             background-color: rgba(255, 255, 255, 0.03);
             border-left: 2px solid rgba(255, 255, 255, 0.4);
@@ -158,6 +150,23 @@ def get_engine():
     return QuantumEngine()
 
 engine = get_engine()
+
+def get_ingested_tickers(engine):
+    """PRO FEATURE: Dynamic ticker list from Qdrant metadata."""
+    try:
+        results, _ = engine.retriever.client.scroll(
+            collection_name=engine.retriever.collection_name,
+            with_payload=True,
+            with_vectors=False,
+            limit=1000
+        )
+        tickers = set(
+            point.payload['metadata']['company'].upper() 
+            for point in results if 'metadata' in point.payload and 'company' in point.payload['metadata']
+        )
+        return sorted(list(tickers))
+    except Exception:
+        return []
 
 if "search_results" not in st.session_state:
     st.session_state.search_results = []
@@ -209,7 +218,7 @@ with st.sidebar:
             with st.expander(f"{filing['type']} | {filing['date']}"):
                 if st.button("Synchronize Artifact", key=f"btn_{filing['url']}"):
                     prog = st.progress(0)
-                    with st.spinner("Extracting fragments..."):
+                    with st.spinner("Extracting..."):
                         search_service = SECSearchService()
                         path = search_service.download_filing(filing)
                         if path:
@@ -218,6 +227,7 @@ with st.sidebar:
                             st.toast(f"Synchronized {count} fragments")
                             time.sleep(1)
                             prog.empty()
+                            st.rerun()
 
     st.divider()
     uploaded_file = st.file_uploader("Upload Artifact", type=["pdf", "html"])
@@ -230,8 +240,12 @@ with st.sidebar:
                 tmp_path = Path(tmp.name)
             count = process_and_vectorize(tmp_path, manual_tag, uploaded_file.name)
             st.toast(f"Manifested {count} fragments")
+            st.rerun()
 
-    company_filter = st.selectbox("Focus Area", ["Global Markets", "NVIDIA", "Meta", "Alphabet", "TSM"], index=0)
+    live_tickers = get_ingested_tickers(engine)
+    focus_options = ["Global Markets"] + live_tickers
+    company_filter = st.selectbox("Focus Area", focus_options, index=0)
+
     if st.button("Reset Memory", use_container_width=True):
         st.session_state.messages = []
         st.session_state.last_sources = []
@@ -252,21 +266,35 @@ with tab_chat:
     if prompt := st.chat_input("Input Fiscal Inquiry..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"): st.markdown(prompt)
+        
         with st.chat_message("assistant"):
             with st.spinner("Synthesizing..."):
                 target_company = None if company_filter == "Global Markets" else company_filter.lower()
                 response, sources = engine.ask(prompt, company=target_company)
+                
+                # Commit flattened source dictionaries to state
                 st.session_state.last_sources = sources
-                st.markdown(response)
                 st.session_state.messages.append({"role": "assistant", "content": response})
+                
+                st.markdown(response)
                 st.rerun()
 
 with tab_sources:
-    if st.session_state.last_sources:
+    if st.session_state.get("last_sources"):
         for i, doc in enumerate(st.session_state.last_sources):
-            meta = doc.get('metadata', {}) if isinstance(doc, dict) else getattr(doc, 'metadata', {})
-            content = doc.get('page_content', '') if isinstance(doc, dict) else getattr(doc, 'page_content', '')
-            st.markdown(f'<div class="quantum-card"><strong>Source Entry {i+1} | {meta.get("source", "Archive Record")}</strong></div>', unsafe_allow_html=True)
-            with st.expander("Examine Fragment"): st.write(content)
+            # Accessing the flattened dictionary keys defined in engine.py
+            source_name = doc.get("source", "Archive Record")
+            content = doc.get("content", "Fragment missing...")
+            score = doc.get("score", 0.0)
+            
+            st.markdown(f'''
+                <div class="quantum-card">
+                    <strong style="color:#9370DB">Source Entry {i+1} | {source_name}</strong>
+                    <br><small style="color: rgba(255,255,255,0.6)">Relevance Score: {score:.4f}</small>
+                </div>
+            ''', unsafe_allow_html=True)
+            
+            with st.expander("Examine Fragment"): 
+                st.write(content)
     else:
         st.info("The ledger is silent.")
