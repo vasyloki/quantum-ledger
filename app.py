@@ -116,6 +116,7 @@ st.markdown(f"""
             padding: 1.8rem;
             border-radius: 15px;
             backdrop-filter: blur(10px);
+            margin-bottom: 15px;
         }}
 
         [data-testid="stChatMessage"] {{
@@ -126,20 +127,19 @@ st.markdown(f"""
             padding: 25px;
         }}
 
-        div[data-testid="stStatus"] {{
-            background-color: #0A0A0A !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            border-radius: 40px !important;
+        .open-btn-style {{
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 6px 12px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: 0.3s;
         }}
-
-        .stProgress > div > div > div > div {{
-            background-color: rgba(255, 255, 255, 0.7) !important;
-        }}
-        
-        .stChatInput textarea {{
-            background-color: rgba(15, 15, 15, 0.8) !important;
-            color: #FFFFFF !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        .open-btn-style:hover {{
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #FFFFFF;
         }}
     </style>
 """, unsafe_allow_html=True)
@@ -152,30 +152,46 @@ def get_engine():
 engine = get_engine()
 
 def get_ingested_tickers(engine):
-    """PRO FEATURE: Dynamic ticker list from Qdrant metadata."""
     try:
         results, _ = engine.retriever.client.scroll(
             collection_name=engine.retriever.collection_name,
-            with_payload=True,
-            with_vectors=False,
-            limit=1000
+            with_payload=True, with_vectors=False, limit=1000
         )
-        tickers = set(
-            point.payload['metadata']['company'].upper() 
-            for point in results if 'metadata' in point.payload and 'company' in point.payload['metadata']
-        )
+        tickers = set(p.payload['metadata']['company'].upper() for p in results if 'metadata' in p.payload)
         return sorted(list(tickers))
-    except Exception:
-        return []
+    except Exception: return []
 
-if "search_results" not in st.session_state:
-    st.session_state.search_results = []
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "last_sources" not in st.session_state:
-    st.session_state.last_sources = []
+def get_company_inventory(engine, company_name):
+    """Fetches unique documents, URLs, and fragment counts for a SPECIFIC company."""
+    try:
+        search_filter = None
+        if company_name and company_name != "Global Markets":
+            search_filter = models.Filter(
+                must=[models.FieldCondition(key="metadata.company", match=models.MatchValue(value=company_name.lower()))]
+            )
+        
+        results, _ = engine.retriever.client.scroll(
+            collection_name=engine.retriever.collection_name,
+            scroll_filter=search_filter,
+            with_payload=True, limit=10000
+        )
+        
+        inventory = {} # source_name: {"count": X, "url": Y}
+        for p in results:
+            meta = p.payload.get('metadata', {})
+            src = meta.get('source', 'Unknown')
+            url = meta.get('url', '#')
+            if src not in inventory:
+                inventory[src] = {"count": 0, "url": url}
+            inventory[src]["count"] += 1
+        return inventory
+    except Exception: return {}
 
-def process_and_vectorize(file_path, company_name, source_name):
+if "search_results" not in st.session_state: st.session_state.search_results = []
+if "messages" not in st.session_state: st.session_state.messages = []
+if "last_sources" not in st.session_state: st.session_state.last_sources = []
+
+def process_and_vectorize(file_path, company_name, source_name, original_url="#"):
     r = engine.retriever 
     conv_result = r.converter.convert(file_path)
     whole_text = conv_result.document.export_to_markdown()
@@ -187,7 +203,18 @@ def process_and_vectorize(file_path, company_name, source_name):
         if len(clean_text) < 40: continue
         vector = r.model.encode(clean_text).tolist()
         point_id = hash(f"{source_name}_{i}_{company_name}") & 0xFFFFFFFFFFFFFFFF
-        points.append(models.PointStruct(id=point_id, vector={"text-dense": vector}, payload={"page_content": clean_text, "metadata": {"source": source_name, "company": company_name.lower()}}))
+        points.append(models.PointStruct(
+            id=point_id, 
+            vector={"text-dense": vector}, 
+            payload={
+                "page_content": clean_text, 
+                "metadata": {
+                    "source": source_name, 
+                    "company": company_name.lower(),
+                    "url": original_url
+                }
+            }
+        ))
     if points:
         r.client.upsert(collection_name=r.collection_name, points=points)
         return len(points)
@@ -207,26 +234,20 @@ with st.sidebar:
                 if results:
                     st.session_state.search_results = results
                     st.rerun() 
-                else:
-                    st.warning("No echoes returned.")
-            except Exception as e:
-                st.error("Signal lost.")
+                else: st.warning("No echoes returned.")
+            except Exception: st.error("Signal lost.")
 
     if st.session_state.search_results:
         st.write("---")
         for filing in st.session_state.search_results:
             with st.expander(f"{filing['type']} | {filing['date']}"):
                 if st.button("Synchronize Artifact", key=f"btn_{filing['url']}"):
-                    prog = st.progress(0)
                     with st.spinner("Extracting..."):
                         search_service = SECSearchService()
                         path = search_service.download_filing(filing)
                         if path:
-                            count = process_and_vectorize(path, ticker_input, f"{ticker_input}-{filing['type']}")
-                            prog.progress(100)
+                            count = process_and_vectorize(path, ticker_input, f"{ticker_input}-{filing['type']}", original_url=filing['url'])
                             st.toast(f"Synchronized {count} fragments")
-                            time.sleep(1)
-                            prog.empty()
                             st.rerun()
 
     st.divider()
@@ -252,12 +273,10 @@ with st.sidebar:
         st.rerun()
 
 # --- MAIN AREA ---
-col_head, col_badge = st.columns([5, 1])
-with col_head:
-    st.title("The Quantum Ledger")
-    st.caption(f"Analyzing {ticker_input if ticker_input else 'Aggregate Market Data'}")
+st.title("The Quantum Ledger")
+st.caption(f"Analyzing {company_filter}")
 
-tab_chat, tab_sources = st.tabs(["Analysis Terminal", "Grounded Citations"])
+tab_chat, tab_sources, tab_library = st.tabs(["Analysis Terminal", "Grounded Citations", "Archive Library"])
 
 with tab_chat:
     for message in st.session_state.messages:
@@ -266,23 +285,18 @@ with tab_chat:
     if prompt := st.chat_input("Input Fiscal Inquiry..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"): st.markdown(prompt)
-        
         with st.chat_message("assistant"):
             with st.spinner("Synthesizing..."):
                 target_company = None if company_filter == "Global Markets" else company_filter.lower()
                 response, sources = engine.ask(prompt, company=target_company)
-                
-                # Commit flattened source dictionaries to state
                 st.session_state.last_sources = sources
                 st.session_state.messages.append({"role": "assistant", "content": response})
-                
                 st.markdown(response)
                 st.rerun()
 
 with tab_sources:
     if st.session_state.get("last_sources"):
         for i, doc in enumerate(st.session_state.last_sources):
-            # Accessing the flattened dictionary keys defined in engine.py
             source_name = doc.get("source", "Archive Record")
             content = doc.get("content", "Fragment missing...")
             score = doc.get("score", 0.0)
@@ -293,8 +307,27 @@ with tab_sources:
                     <br><small style="color: rgba(255,255,255,0.6)">Relevance Score: {score:.4f}</small>
                 </div>
             ''', unsafe_allow_html=True)
-            
-            with st.expander("Examine Fragment"): 
-                st.write(content)
-    else:
-        st.info("The ledger is silent.")
+            with st.expander("Examine Fragment"): st.write(content)
+    else: st.info("The ledger is silent.")
+
+with tab_library:
+    st.subheader(f"Manifested Artifacts: {company_filter}")
+    inventory = get_company_inventory(engine, company_filter)
+    
+    if inventory:
+        col1, col2 = st.columns(2)
+        for i, (doc_name, data) in enumerate(inventory.items()):
+            target_col = col1 if i % 2 == 0 else col2
+            with target_col:
+                st.markdown(f"""
+                    <div class="quantum-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <span style="color: #9370DB; font-size: 1.1rem;">📄 {doc_name}</span><br>
+                                <small style="color: rgba(255,255,255,0.6)">{data['count']} Fragments Ingested</small>
+                            </div>
+                            <a href="{data['url']}" target="_blank" class="open-btn-style">Open ↗</a>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+    else: st.info(f"No artifacts discovered for {company_filter} in this sector of the archive.")
