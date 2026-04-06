@@ -183,11 +183,16 @@ def get_company_inventory(engine, company_name):
             url = meta.get('url', '#')
             if src not in inventory:
                 inventory[src] = {"count": 0, "url": url}
+            # Update URL if it was previously '#' but now has a value
+            if url != '#' and inventory[src]['url'] == '#':
+                inventory[src]['url'] = url
             inventory[src]["count"] += 1
         return inventory
     except Exception: return {}
 
+# --- SESSION STATE INITIALIZATION ---
 if "search_results" not in st.session_state: st.session_state.search_results = []
+if "show_archive" not in st.session_state: st.session_state.show_archive = False
 if "messages" not in st.session_state: st.session_state.messages = []
 if "last_sources" not in st.session_state: st.session_state.last_sources = []
 
@@ -226,29 +231,42 @@ with st.sidebar:
     ticker_input = st.text_input("Entity Ticker", value="NVDA").upper()
     
     if st.button("Query Archive", use_container_width=True):
-        st.session_state.search_results = []
         with st.status("Listening to the Void...", expanded=False):
             try:
                 search_service = SECSearchService()
                 results = search_service.get_filing_list(ticker_input)
                 if results:
                     st.session_state.search_results = results
+                    st.session_state.show_archive = True
                     st.rerun() 
                 else: st.warning("No echoes returned.")
             except Exception: st.error("Signal lost.")
 
+    # --- TOGGLABLE RESULTS ---
     if st.session_state.search_results:
-        st.write("---")
-        for filing in st.session_state.search_results:
-            with st.expander(f"{filing['type']} | {filing['date']}"):
-                if st.button("Synchronize Artifact", key=f"btn_{filing['url']}"):
-                    with st.spinner("Extracting..."):
-                        search_service = SECSearchService()
-                        path = search_service.download_filing(filing)
-                        if path:
-                            count = process_and_vectorize(path, ticker_input, f"{ticker_input}-{filing['type']}", original_url=filing['url'])
-                            st.toast(f"Synchronized {count} fragments")
-                            st.rerun()
+        # User can toggle visibility of the list manually
+        st.session_state.show_archive = st.checkbox(
+            "Show Discovered Artifacts", 
+            value=st.session_state.show_archive
+        )
+        
+        if st.session_state.show_archive:
+            st.write("---")
+            for filing in st.session_state.search_results:
+                with st.expander(f"{filing['type']} | {filing['date']}"):
+                    if st.button("Synchronize Artifact", key=f"btn_{filing['url']}"):
+                        with st.spinner("Extracting..."):
+                            search_service = SECSearchService()
+                            path = search_service.download_filing(filing)
+                            if path:
+                                count = process_and_vectorize(path, ticker_input, f"{ticker_input}-{filing['type']}", original_url=filing['url'])
+                                st.toast(f"Synchronized {count} fragments")
+                                st.rerun()
+            
+            if st.button("Clear Echoes", use_container_width=True):
+                st.session_state.search_results = []
+                st.session_state.show_archive = False
+                st.rerun()
 
     st.divider()
     uploaded_file = st.file_uploader("Upload Artifact", type=["pdf", "html"])
